@@ -2,36 +2,55 @@ import json
 import os
 
 import currencyapicom
-from thefuzz import process
 
+from utils import convert_symbol, find_match
 
-def find_match(user_input: str, options: dict):
-    match, confidence = process.extractOne(user_input, options)
-    if confidence < 90:
-        raise ValueError(f"No currency found for '{user_input}'. Did you mean '{match}'?")
-    return match
-
-# Opening JSON file
-with open('test.json') as f:
-    result = json.loads(f.read())
+# This is sample json used to avoid making too many api calls for testing
+# with open('test.json') as f:
+#    result = json.loads(f.read())
 
 # You will need to replace this with your api key!
-# api_key = os.environ['CURRENCY_API_KEY']
+api_key = os.environ['CURRENCY_API_KEY']
+client = currencyapicom.Client(api_key)
 
-# client = currencyapicom.Client(api_key)
+currency_options: dict[str, str] = {}
 
-list_options = []
+currency_api = client.currencies()
 
-# result = client.currencies()
-currencies = result["data"]
+# Get all supported currencies
+currencies = currency_api["data"]
 for item in currencies:
     currency = currencies[item]
-    list_options.append(currency['name'])
-    list_options.append(currency['symbol'])
+    currency_options[currency['code']] = currency['name']
 
 
 orignal_currency = input("Currency to convert from: ")
-result = find_match(orignal_currency, list_options)
+amt = input("How much currency? ")
+new_currency = input("Currency to convert into: ")
+
+# Value checks
+try:
+    amt = int(amt)
+except ValueError:
+    raise ValueError("The currency amount must be a number!") from None
 
 
-print(result)
+# Gets all symbols from the {symbol, name} dict by going thru
+# each (key, value) pair, and adds the key and value in list
+symbols = [item for pair in currency_options.items() for item in pair]
+
+orignal_currency = find_match(orignal_currency, symbols) # type: ignore
+new_currency = find_match(new_currency, symbols) # type: ignore
+
+
+# Convert names to symbol if name for API
+from_symbol = convert_symbol(orignal_currency, currency_options)
+into_symbol = convert_symbol(new_currency, currency_options)
+
+
+
+result = client.latest(base_currency=[from_symbol], currencies=[into_symbol])
+conversion = result["data"][into_symbol]["value"]*amt
+
+print("Your currency conversion:")
+print(f"{amt} {from_symbol} => {round(conversion, 3)} {into_symbol}")
