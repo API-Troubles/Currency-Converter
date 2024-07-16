@@ -5,16 +5,12 @@ import currencyapicom
 
 from utils import convert_symbol, find_match
 
-# This is sample json used to avoid making too many api calls for testing
-# with open('test.json') as f:
-#    result = json.loads(f.read())
-
 # You will need to replace this with your api key!
 api_key = os.environ['CURRENCY_API_KEY']
+# ^ Insert API key here ^ (Remove the os.environ)
+
 client = currencyapicom.Client(api_key)
-
 currency_options: dict[str, str] = {}
-
 currency_api = client.currencies()
 
 # Get all supported currencies
