@@ -1,6 +1,8 @@
 # A seperated space for utility functions, keeps main.py more organized!
+from thefuzz import process
 
-def convert_symbol(text: str) -> str:
+
+def convert_symbol(text: str, currency_options: dict) -> str:
     if text not in list(currency_options.keys()):
         return list(currency_options.keys())[list(currency_options.values()).index(text)]
     return text
