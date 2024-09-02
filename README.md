@@ -12,3 +12,5 @@ Simply go to [the currency api website](https://currencyapi.com/) to get yoursel
 So you can run this script ~250 times. Or around 8 times a day, every day, for a whole month!
 
 Insert the API key on line 9 on main.py and your off to the races! Enjoy!
+
+You can click on the replit URL on the side bar (over there >>), clone it, add your API key like above (^^^) and your off to go burrrrrrrr.
